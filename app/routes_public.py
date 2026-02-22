@@ -73,3 +73,64 @@ def signup():
         "message": "Signup created",
         "token": token  # tymczasowo zwracamy do testów
     })
+
+@public_bp.get("/confirm")
+def confirm():
+    token = request.args.get("token")
+
+    if not token:
+        return jsonify({"error": "Token is required"}), 400
+
+    db = get_db()
+
+    signup = db.execute(
+        "SELECT * FROM signups WHERE token=? LIMIT 1",
+        (token,),
+    ).fetchone()
+
+    if not signup:
+        return jsonify({"error": "Invalid token"}), 400
+
+    if signup["status"] == "confirmed":
+        return jsonify({"message": "Already confirmed", "code": signup["assigned_code"]})
+
+    campaign = db.execute(
+        "SELECT * FROM campaigns WHERE id=?",
+        (signup["camp_id"],),
+    ).fetchone()
+
+    if not campaign:
+        return jsonify({"error": "Campaign not found"}), 400
+
+    # TRYB STAŁY (fixed)
+    if campaign["mode"] == "fixed":
+        assigned_code = campaign["primary_code"]
+
+    else:
+        # tryb indywidualny – pierwszy wolny kod
+        code_row = db.execute(
+            "SELECT * FROM codes WHERE camp_id=? AND is_used=0 LIMIT 1",
+            (campaign["id"],),
+        ).fetchone()
+
+        if not code_row:
+            return jsonify({"error": "No codes available"}), 400
+
+        assigned_code = code_row["code"]
+
+        db.execute(
+            "UPDATE codes SET is_used=1, used_by_signup_id=?, used_at=datetime('now') WHERE id=?",
+            (signup["id"], code_row["id"]),
+        )
+
+    db.execute(
+        "UPDATE signups SET status='confirmed', assigned_code=?, confirmed_at=datetime('now') WHERE id=?",
+        (assigned_code, signup["id"]),
+    )
+
+    db.commit()
+
+    return jsonify({
+        "message": "Confirmed",
+        "code": assigned_code
+    })
