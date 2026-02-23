@@ -7,7 +7,7 @@ from email.message import EmailMessage
 from .config import Config
 from flask import current_app
 
-from .db import get_db, init_db, seed_default_campaign
+from .db import get_db
 
 public_bp = Blueprint("public", __name__)
 
@@ -53,8 +53,6 @@ def debug_default_campaign():
 
 @public_bp.post("/api/signup")
 def signup():
-    init_db()
-    seed_default_campaign()
     
     data = request.get_json()
 
