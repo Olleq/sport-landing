@@ -1,6 +1,6 @@
 from flask import Flask
 from .config import Config
-from .db import init_db, get_db, close_db
+from .db import init_db, close_db, seed_default_campaign
 from .routes_public import public_bp
 
 def create_app():
@@ -24,17 +24,5 @@ def create_app():
 
     return app
 
-def seed_default_campaign():
-    db = get_db()
-    # jeśli nie ma żadnej domyślnej kampanii, tworzymy
-    row = db.execute("SELECT id FROM campaigns WHERE is_default=1 LIMIT 1").fetchone()
-    if row:
-        return
-
-    db.execute(
-        "INSERT INTO campaigns (name, is_active, is_default, mode, primary_code) VALUES (?, ?, ?, ?, ?)",
-        ("SPORT_DEFAULT", 1, 1, "fixed", "SPORT10"),
-    )
-    db.commit()
 
 app = create_app()
