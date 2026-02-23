@@ -5,6 +5,7 @@ import secrets
 import smtplib
 from email.message import EmailMessage
 from .config import Config
+from flask import current_app
 
 from .db import get_db, init_db, seed_default_campaign
 
