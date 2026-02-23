@@ -23,3 +23,20 @@ def init_db():
     db.executescript(schema_path.read_text(encoding="utf-8"))
     db.commit()
     db.close()
+
+def seed_default_campaign():
+    db = sqlite3.connect(Config.DB_PATH)
+    db.row_factory = sqlite3.Row
+
+    row = db.execute(
+        "SELECT id FROM campaigns WHERE is_default=1 LIMIT 1"
+    ).fetchone()
+
+    if not row:
+        db.execute(
+            "INSERT INTO campaigns (name, is_active, is_default, mode, primary_code) VALUES (?, ?, ?, ?, ?)",
+            ("SPORT_DEFAULT", 1, 1, "fixed", "SPORT10"),
+        )
+        db.commit()
+
+    db.close()
