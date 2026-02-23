@@ -26,9 +26,9 @@ def send_confirmation_email(to_email, token):
     confirm_url = f"https://sport-landing.onrender.com/confirm?token={token}"
 
     msg.set_content(f"""
-Dziękujemy za zapis do Strefy Sport.
+Dziękujemy za zapis!
 
-Kliknij poniższy link, aby potwierdzić zapis:
+Kliknij poniższy link, aby potwierdzić:
 {confirm_url}
 """)
 
@@ -103,29 +103,7 @@ def signup():
         "token": token  # tymczasowo zwracamy do testów
     })
 
-def send_confirmation_email(to_email, token):
-    if not Config.SMTP_HOST:
-        print("SMTP not configured, skipping email")
-        return
 
-    msg = EmailMessage()
-    msg["Subject"] = "Potwierdź zapis – Zdrowie Na Stole"
-    msg["From"] = Config.SMTP_FROM
-    msg["To"] = to_email
-
-    confirm_url = f"https://sport-landing.onrender.com/confirm?token={token}"
-
-    msg.set_content(f"""
-Dziękujemy za zapis!
-
-Kliknij poniższy link, aby potwierdzić:
-{confirm_url}
-""")
-
-    with smtplib.SMTP(Config.SMTP_HOST, Config.SMTP_PORT) as server:
-        server.starttls()
-        server.login(Config.SMTP_USER, Config.SMTP_PASS)
-        server.send_message(msg)
 
 @public_bp.get("/confirm")
 def confirm():
