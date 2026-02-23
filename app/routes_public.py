@@ -2,6 +2,9 @@ from flask import Blueprint, jsonify, request
 from datetime import datetime
 import re
 import secrets
+import smtplib
+from email.message import EmailMessage
+from .config import Config
 
 from .db import get_db
 
@@ -73,6 +76,30 @@ def signup():
         "message": "Signup created",
         "token": token  # tymczasowo zwracamy do testów
     })
+
+def send_confirmation_email(to_email, token):
+    if not Config.SMTP_HOST:
+        print("SMTP not configured, skipping email")
+        return
+
+    msg = EmailMessage()
+    msg["Subject"] = "Potwierdź zapis – Zdrowie Na Stole"
+    msg["From"] = Config.SMTP_FROM
+    msg["To"] = to_email
+
+    confirm_url = f"https://sport-landing.onrender.com/confirm?token={token}"
+
+    msg.set_content(f"""
+Dziękujemy za zapis!
+
+Kliknij poniższy link, aby potwierdzić:
+{confirm_url}
+""")
+
+    with smtplib.SMTP(Config.SMTP_HOST, Config.SMTP_PORT) as server:
+        server.starttls()
+        server.login(Config.SMTP_USER, Config.SMTP_PASS)
+        server.send_message(msg)
 
 @public_bp.get("/confirm")
 def confirm():
