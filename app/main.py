@@ -10,13 +10,6 @@ def create_app():
     # DB lifecycle
     app.teardown_appcontext(close_db)
 
-    # Init DB on startup (MVP: ok)
-    with app.app_context():
-        try:
-            init_db()
-            seed_default_campaign()
-        except Exception as e:
-            print("DB INIT ERROR:", e)
 
     # Routes
     app.register_blueprint(public_bp)
