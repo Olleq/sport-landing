@@ -10,7 +10,7 @@ def create_app():
     # DB lifecycle
     app.teardown_appcontext(close_db)
 
-        # 🔴 INIT DB PRZY STARCIE
+    # 🔴 INIT DB PRZY STARCIE
     with app.app_context():
         init_db()
         seed_default_campaign()
