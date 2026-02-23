@@ -69,6 +69,7 @@ def signup():
             (campaign["id"], request.args.get("ch"), email, token, now),
         )
         db.commit()
+        send_confirmation_email(email, token)
     except Exception:
         return jsonify({"error": "Email already registered in this campaign"}), 400
 
