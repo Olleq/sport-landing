@@ -6,7 +6,7 @@ import smtplib
 from email.message import EmailMessage
 from .config import Config
 
-from .db import get_db, init_db
+from .db import get_db, init_db, seed_default_campaign
 
 public_bp = Blueprint("public", __name__)
 
