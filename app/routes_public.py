@@ -29,6 +29,7 @@ def debug_default_campaign():
 
 @public_bp.post("/api/signup")
 def signup():
+    init_db()
     data = request.get_json()
 
     if not data or "email" not in data:
